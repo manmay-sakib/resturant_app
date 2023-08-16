@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:resturant_app/components/buttons.dart';
 import 'package:resturant_app/themes/colors.dart';
 
+import '../components/shop.dart';
 import '../models/food.dart';
 
 class FoodDetails extends StatefulWidget {
@@ -18,13 +20,13 @@ class FoodDetails extends StatefulWidget {
 
 class _FoodDetailsState extends State<FoodDetails> {
   ///quantity
-  int quantity = 0;
+  int quantityCount = 0;
 
   /// decrement quantity
   void decrementQuantity() {
     setState(() {
-      if (quantity > 0) {
-        quantity--;
+      if (quantityCount > 0) {
+        quantityCount--;
       }
     });
   }
@@ -32,11 +34,50 @@ class _FoodDetailsState extends State<FoodDetails> {
   /// increment quantity
   void incrementQuantity() {
     setState(() {
-      quantity++;
+      quantityCount++;
     });
+  }
 
-    // add to cart
-    void addToCart() {}
+  // add to cart
+  void addToCart() {
+    // only add to cart if there is something in the cart
+    if (quantityCount > 0) {
+      // get access to shop
+      final shop = context.read<Shop>();
+      // add to cart
+      shop.addToCart(widget.food, quantityCount);
+      // let the user know it was successful
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: primaryColor,
+          content: Text(
+            "Successfully added to cart",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            // ok button
+            IconButton(
+              onPressed: () {
+                //pop once to remove dialog box
+                Navigator.pop(context);
+
+                // pop again to go previous screen
+                Navigator.pop(context);
+              },
+              icon: Icon(
+                Icons.done,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -46,9 +87,14 @@ class _FoodDetailsState extends State<FoodDetails> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Icon(
-          Icons.arrow_back_ios_new,
-          color: Colors.grey[900],
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.grey[900],
+          ),
         ),
       ),
       body: Column(
@@ -64,7 +110,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                     widget.food.imagePath,
                     height: 200,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 25,
                   ),
 
@@ -76,7 +122,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                         Icons.star,
                         color: Colors.yellow[800],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       //rating number
@@ -89,7 +135,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
 
@@ -100,7 +146,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                       fontSize: 28,
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 25,
                   ),
 
@@ -136,7 +182,7 @@ class _FoodDetailsState extends State<FoodDetails> {
           // price + quantity + add to cart button
           Container(
             color: primaryColor,
-            padding: EdgeInsets.all(25),
+            padding: const EdgeInsets.all(25),
             child: Column(
               children: [
                 // price + quantity
@@ -145,8 +191,8 @@ class _FoodDetailsState extends State<FoodDetails> {
                   children: [
                     //price
                     Text(
-                      '\$' + widget.food.price,
-                      style: TextStyle(
+                      '\$${widget.food.price}',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -163,7 +209,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.remove,
                               color: Colors.white,
                             ),
@@ -176,8 +222,8 @@ class _FoodDetailsState extends State<FoodDetails> {
                           width: 40,
                           child: Center(
                             child: Text(
-                              quantity.toString(),
-                              style: TextStyle(
+                              quantityCount.toString(),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -204,14 +250,14 @@ class _FoodDetailsState extends State<FoodDetails> {
                     )
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 25,
                 ),
 
                 // add to cart button
                 MyButton(
                   text: 'Add to Cart',
-                  onTap: () {},
+                  onTap: addToCart,
                 )
               ],
             ),
